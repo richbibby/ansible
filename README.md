@@ -1,4 +1,10 @@
 # ansible
-Ansible Playbooks
+Random ansible playbooks, mainly for Cisco IOS
 
-random ansible playbooks, mainly for Cisco IOS
+#to run a playbook use --extra-vars to specfify the target host
+
+ansible-playbook verify_dmvpn.yml --extra-vars "target=r1"
+
+OR 
+
+ansible-playbook verify_dmvpn.yml --extra-vars "target=routers"
