@@ -1,4 +1,4 @@
-#this is an example of a hosts file that could be used with these playbooks
+#this is an example of a host file that could be used with these playbooks
 
 [all:vars]
 username=ansible
