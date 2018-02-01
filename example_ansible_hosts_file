@@ -1,0 +1,13 @@
+#this is an example of a hosts file that could be used with these playbooks
+
+[all:vars]
+username=ansible
+password=5uP3r53Cret
+
+[routers]
+r1
+r2
+
+[switches]
+s1
+s2
