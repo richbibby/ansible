@@ -1,0 +1,25 @@
+---
+- name: SHOW DHCP INFORMAITON ON A CISCO IOS SWITCH
+  hosts: "{{ target }}"
+  gather_facts: false
+  connection: local
+
+  vars:
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+
+  tasks:
+    - name: SHOW POOL | BINDINGS | CONFLICTS
+      ios_command:
+        provider: "{{ cli }}"
+        timeout: 30
+        commands:
+          - sh ip dhcp pool
+          - show ip dhcp bind
+          - sh ip dhcp conflict
+
+
+      register: print_output
+
+    - debug: var=print_output.stdout_lines
