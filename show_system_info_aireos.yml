@@ -1,0 +1,23 @@
+#retrieve the system information from a Cisco Mobility Express WLAN controller
+
+---
+- name: SHOW INFORMATION FROM A CISCO ME WLC
+  hosts: '{{ target }}'
+  gather_facts: false
+  connection: local
+
+  vars:
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+      host: "{{ inventory_hostname }}"
+
+  tasks:
+    - name: run show sysinfo on remote devices
+      aireos_command:
+        provider: "{{ cli }}"
+        commands: show sysinfo
+
+      register: print_output
+
+    - debug: var=print_output.stdout_lines
