@@ -1,5 +1,5 @@
 # ansible
-Random ansible playbooks, mainly for Cisco IOS
+Random ansible playbooks, mainly for Cisco IOS and Aireos
 
 #to run a playbook use --extra-vars to specfify the target host
 
