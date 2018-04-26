@@ -1,0 +1,42 @@
+---
+- name: configure DHCP scope
+  hosts: '{{ target }}'
+  gather_facts: false
+  connection: local
+
+vars:
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+      host: "{{ inventory_hostname }}"
+
+  tasks:
+    - name: SET UP DHCP EXCLUSIONS
+      ios_config:
+        provider: "{{ cli }}"
+        authorize: yes
+        lines:
+          - ip dhcp excluded-address 192.168.1.2 192.168.1.10
+        match: exact
+
+      register: print_output
+
+    - debug: var=print_output
+
+    - name: CONFIGURE DHCP SCOPE
+      ios_config:
+        provider: "{{ cli }}"
+        authorize: yes
+        parents: ip dhcp pool "{{ dhcp_pool_name }}"
+        lines:
+          - network 192.168.1.0 255.255.255.0
+          - default-router 192.168.1.1
+          - domain-name lab.com
+          - dns-server 8.8.8.8 8.8.4.4
+          - lease 0 12
+        before: no ip dhcp pool "{{ dhcp_pool_name }}"
+        match: exact
+
+      register: print_output
+
+    - debug: var=print_output
