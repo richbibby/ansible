@@ -1,0 +1,23 @@
+#set a new PSK for the guest wifi SSID for Cisco Mobility Express controller running Aireos.  wlan in this example is number 2
+
+---
+- name: SET THE PRE-SHARED-KEY FOR GUEST SSID 
+  hosts: '{{ target }}'
+  gather_facts: false
+  connection: local
+
+  vars:
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+      host: "{{ inventory_hostname }}"
+
+  tasks:
+    - name: set psk on wlan controllers
+      aireos_config:
+        provider: "{{ cli }}"
+        lines:
+          - wlan disable 2
+          - wlan security wpa akm psk set-key ascii new-secret-key 2
+          - wlan enable 2
+        save: yes
