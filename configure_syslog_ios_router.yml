@@ -1,0 +1,25 @@
+---
+- name: CONFIGURE SYSLOG ON A ROUTER
+  hosts: '{{ target }}'
+  gather_facts: false
+  connection: local
+
+  vars:
+    cli:
+      username: "{{ username}}"
+      password: "{{ password }}"
+
+  tasks:
+    - name: CONFIGURE SYSLOG
+      ios_config:
+        lines:
+          - logging history size 250
+          - logging dmvpn rate-limit 12
+          - logging trap warnings
+          - logging origin-id hostname
+          - logging facility syslog
+          - logging source-interface Loopback0
+          - logging host 192.168.10.10 transport udp port 1514
+        timeout: 30
+        match: exact
+        provider: "{{ cli }}"
