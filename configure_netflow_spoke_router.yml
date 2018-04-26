@@ -1,0 +1,119 @@
+#configures an ISR4321 router to send Netflow data to Logstash collector
+
+---
+- name: CONFIGURE NETFLOW ON SPOKE ROUTERS
+  hosts: '{{ target }}'
+  gather_facts: false
+  connection: local
+
+  vars:
+    cli:
+      username: "{{ username }}"
+      password: "{{ password }}"
+
+  tasks:
+    - name: CREATE INBOUND FLOW RECORD
+      ios_config:
+        lines:
+          - match flow direction
+          - match interface input
+          - match ipv4 destination address
+          - match ipv4 protocol
+          - match ipv4 source address
+          - match ipv4 tos
+          - match transport destination-port
+          - match transport source-port
+          - collect counter bytes
+          - collect counter packets
+          - collect interface output
+        parents: flow record Netflow-In
+        match: exact
+        provider: "{{ cli }}"
+        timeout: 30
+
+
+    - name: CREATE OUTBOUND FLOW RECORD
+      ios_config:
+        lines:
+          - match flow direction
+          - match interface output
+          - match ipv4 destination address
+          - match ipv4 protocol
+          - match ipv4 source address
+          - match ipv4 tos
+          - match transport destination-port
+          - match transport source-port
+          - collect counter bytes
+          - collect counter packets
+          - collect interface input
+        parents: flow record Netflow-Out
+        match: exact
+        provider: "{{ cli }}"
+        timeout: 30
+
+
+    - name: CREATE FLOW EXPORTER
+      ios_config:
+        lines:
+          - Source Loopback0
+          - destination 192.168.2.100
+          - transport udp 2055
+          - export-protocol netflow-v9
+        parents: flow exporter Netflow-to-Logstash
+        match: exact
+        provider: "{{ cli }}"
+        timeout: 30
+
+
+    - name: CREATE FLOW MONITOR INBOUND
+      ios_config:
+        lines:
+          - exporter Netflow-to-Logstash
+          - cache timeout inactive 10
+          - cache timeout active 60
+          - record Netflow-In
+        parents: flow monitor Netflow-Monitor-In
+        match: exact
+        provider: "{{ cli }}"
+        timeout: 30
+
+
+    - name: CREATE FLOW MONITOR OUTBOUND
+      ios_config:
+        lines:
+          - exporter Netflow-to-Logstash
+          - cache timeout inactive 10
+          - cache timeout active 60
+          - record Netflow-Out
+        parents: flow monitor Netflow-Monitor-Out
+        match: exact
+        provider: "{{ cli }}"
+        timeout: 30
+
+
+    - name: APPLY TO WAN INTERFACE
+      ios_config:
+        lines:
+          - ip flow monitor Netflow-Monitor-In input
+          - ip flow monitor Netflow-Monitor-Out output
+        parents: interface {{ wan_int}}
+        provider: "{{ cli }}"
+        timeout: 30
+
+
+    - name: APPLY TO LAN INTERFACE
+      ios_config:
+        lines:
+          - ip flow monitor Netflow-Monitor-In input
+          - ip flow monitor Netflow-Monitor-Out output
+        parents: interface {{ lan_int}}
+        provider: "{{ cli }}"
+        timeout: 30
+
+    - name: VERIFY CONFIGURATION
+      ios_command:
+        provider: "{{ cli }}"
+        commands:
+          - show flow exporter Netflow-to-Logstash statistics
+      register: print_output
+    - debug: var=print_output.stdout_lines
