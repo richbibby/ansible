@@ -10,7 +10,8 @@
     cli:
       username: "{{ username }}"
       password: "{{ password }}"
-
+      host: "{{ inventory_hostname }}"
+      
   tasks:
     - name: CREATE INBOUND FLOW RECORD
       ios_config:
