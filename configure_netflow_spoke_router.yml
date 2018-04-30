@@ -1,4 +1,4 @@
-#configures an ISR4321 router to send Netflow data to Logstash collector
+#configures an IOS router to send Netflow data to Logstash collector
 
 ---
 - name: CONFIGURE NETFLOW ON SPOKE ROUTERS
