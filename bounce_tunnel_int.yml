@@ -1,0 +1,35 @@
+###########################################
+# playbook to shut/no shut the Tunnel     #
+# interface on a DMVPN Spoke router       #
+###########################################
+
+---
+- name: BOUNCE TUNNEL INTERFACE  
+  hosts: spokes
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: SHUT TU10
+      ios_config:
+        lines:
+          - shut
+        parents: interface Tu10
+
+    - name: NO SHUT TU10
+      ios_config:
+        lines:
+          - no shut
+        parents: interface Tu10
+
+    - name: CHECK TUNNEL INT | EIGRP | NHRP | DMVPN
+      ios_command:
+        timeout: 30
+        commands:
+          - sh ip int br | i Tunnel
+          - sh ip eigrp nei
+          - sh ip route summary
+          - sh ip nhrp static
+          - sh dmvpn static | begin Interface
+      register: print_output
+    - debug: var=print_output.stdout_lines
