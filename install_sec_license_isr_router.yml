@@ -1,0 +1,20 @@
+---
+- name: INSTALL SECURITY LICENSE ON {{ hostname }} 
+  hosts: "{{ hostname }}"
+  gather_facts: false
+
+  tasks:
+    - name: copy .lic file to flash on {{ hostname }}
+      net_put:
+        src: "LICENSES/{{ hostname }}/{{ license_file }}.lic"
+        dest: flash:/{{ license_file }}.lic
+
+    - name: Load license on {{ hostname }}
+      ios_command:
+        commands:
+          - "license install flash:{{ license_file }}.lic"
+
+    - name: Reload {{ hostname }}
+      ios_command:
+        commands:
+          - "reload\ny"
