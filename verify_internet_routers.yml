@@ -1,0 +1,29 @@
+---
+- name: VERIFY THE STATUS OF INTERNET ROUTERS
+  hosts: 'internet-routers'
+  gather_facts: false
+  connection: local
+
+  tasks:
+
+    - name: CHECK HSRP STANDBY STATE
+      ios_command:
+        commands:
+          - sh standby
+      register: print_output
+    - debug: var=print_output.stdout_lines
+
+    - name: CHECK BGP NEIGHBOUR STATE
+      ios_command:
+        commands:
+          - show ip bgp neighbors | include neighbor|state
+          - show bgp all summary
+      register: print_output
+    - debug: var=print_output.stdout_lines
+
+    - name: CHECK IP ROUTING TABLE FOR THE INTERNET VRF
+      ios_command:
+        commands:
+          - sh ip route VRF INTERNET
+      register: print_output
+    - debug: var=print_output.stdout_lines
