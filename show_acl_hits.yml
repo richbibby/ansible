@@ -1,0 +1,13 @@
+---
+- name: SHOW IP ACCESS LIST {{ acl_name }}
+  hosts: 'hubs,spokes'
+  gather_facts: false
+  connection: local
+
+  tasks:
+    - name: SHOW IP ACCESS-LIST {{ acl_name }}
+      ios_command:
+        commands:
+          - show ip access-list {{ acl_name }}
+      register: print_output
+    - debug: var=print_output.stdout_lines
